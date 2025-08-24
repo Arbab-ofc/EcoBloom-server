@@ -37,6 +37,14 @@ export async function register(req, res) {
     const { subject, text, html } = otpEmail({ name: user.name, otp, minutes: 10 });
     await sendEmail({ to: user.email, subject, text, html });
 
+    const token = signJwt({ id: user._id, isAdmin: user.isAdmin });
+    res.cookie(COOKIE_NAME, token, {
+      httpOnly: true,
+      sameSite:"None",
+      secure: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     return res.status(201).json({
       success: true,
       message: "Registered. OTP sent to email. Please verify to login.",
@@ -67,6 +75,8 @@ export async function login(req, res) {
     const token = signJwt({ id: user._id, isAdmin: user.isAdmin });
     res.cookie(COOKIE_NAME, token, {
       httpOnly: true,
+      sameSite:"None",
+      secure: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -126,7 +136,8 @@ export async function verifyOtp(req, res) {
 
 
     const token = signJwt({ id: user._id, isAdmin: user.isAdmin });
-    res.cookie(COOKIE_NAME, token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
+    res.cookie(COOKIE_NAME, token, { httpOnly: true, sameSite:"None",
+      secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
     return res.json({ success: true, message: "OTP verified. You are logged in." });
   } catch (e) {
