@@ -311,7 +311,14 @@ export async function changePassword(req, res) {
 
 export async function logout(_req, res) {
   try {
-    res.clearCookie(COOKIE_NAME);
+    res.clearCookie(COOKIE_NAME, token, {
+      httpOnly: true,
+      sameSite:"None",
+      secure: true,
+      path: "/",                 
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    }
+  );
     res.json({ success: true, message: "Logged out successfully" });
   } catch (e) {
     console.error(e);
